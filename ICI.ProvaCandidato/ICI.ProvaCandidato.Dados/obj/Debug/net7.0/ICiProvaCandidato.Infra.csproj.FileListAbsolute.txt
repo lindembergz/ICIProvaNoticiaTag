@@ -1,0 +1,17 @@
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Infra.deps.json
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Infra.runtimeconfig.json
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Infra.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Infra.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Dominio.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\bin\Debug\net7.0\ICiProvaCandidato.Dominio.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.csproj.AssemblyReference.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.AssemblyInfoInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.AssemblyInfo.cs
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.csproj.CoreCompileInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProva.73C1F1C5.Up2Date
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\refint\ICiProvaCandidato.Infra.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ICiProvaCandidato.Infra.genruntimeconfig.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Dados\obj\Debug\net7.0\ref\ICiProvaCandidato.Infra.dll

@@ -1,0 +1,11 @@
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\bin\Debug\net7.0\ICiProvaCandidato.Dominio.deps.json
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\bin\Debug\net7.0\ICiProvaCandidato.Dominio.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\bin\Debug\net7.0\ICiProvaCandidato.Dominio.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.AssemblyInfoInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.AssemblyInfo.cs
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.csproj.CoreCompileInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\refint\ICiProvaCandidato.Dominio.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ICiProvaCandidato.Dominio.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICiProvaCandidato.Dominio\obj\Debug\net7.0\ref\ICiProvaCandidato.Dominio.dll

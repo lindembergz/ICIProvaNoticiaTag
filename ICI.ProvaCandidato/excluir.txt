@@ -1,0 +1,283 @@
+    // Submeter exclusão via Ajax
+    $(document).on('click', '.btn-excluir-confirmar', function () {
+        const id = $(this).data('id');
+        console.log('Deleting ID:', id);
+        if (!id || id <= 0) {
+            alert('ID inválido para exclusão');
+            return;
+        }
+        $.ajax({
+            url: `/Noticia/DeleteConfirmed/${id}`, // Use id in the URL
+            type: 'DELETE', // Change to DELETE
+            success: function (response) {
+                if (response.sucesso) {
+                    $('#modalFormulario').modal('hide');
+                    location.reload();
+                } else {
+                    alert(response.mensagem || 'Erro ao excluir notícia');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Erro AJAX:', status, error);
+                alert('Erro ao processar requisição');
+            }
+        });
+    });
+
+
+
+using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.Mvc;
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Web.Models;
+using ICiProvaCandidato.Aplicacao.DTOs;
+using System.Linq;
+
+namespace ICIProvaCandidato.Web.Controllers
+{
+    public class NoticiaController : Controller
+    {
+        private readonly IServicoAplicacaoNoticia _servicoNoticia;
+        private readonly IServicoAplicacaoTag _servicoTag;
+
+        public NoticiaController(
+            IServicoAplicacaoNoticia servicoNoticia,
+            IServicoAplicacaoTag servicoTag)
+        {
+            _servicoNoticia = servicoNoticia;
+            _servicoTag = servicoTag;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var noticias = await _servicoNoticia.ObterTodosAsync();
+            var viewModel = noticias.Select(n => new NoticiaViewModel
+            {
+                Id = n.Id,
+                Titulo = n.Titulo,
+                Conteudo = n.Conteudo,
+                DataPublicacao = n.DataPublicacao,
+                Ativa = n.Ativa,
+                Tags = n.Tags.Select(t => new TagViewModel
+                {
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Descricao = t.Descricao
+                }).ToList()
+            });
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var tags = await _servicoTag.ObterTodosAsync();
+            ViewBag.Tags = tags;
+            return PartialView("_CreatePartial", new NoticiaViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] NoticiaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { sucesso = false, erros = ModelState });
+            }
+
+            try
+            {
+                var noticiaDto = new NoticiaDto
+                {
+                    Titulo = model.Titulo,
+                    Conteudo = model.Conteudo,
+                    TagIds = model.TagIdsSelecionadas
+                };
+
+                await _servicoNoticia.CriarAsync(noticiaDto);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var noticia = await _servicoNoticia.ObterPorIdAsync(id);
+            if (noticia == null)
+                return NotFound();
+
+            var tags = await _servicoTag.ObterTodosAsync();
+            ViewBag.Tags = tags;
+
+            var viewModel = new NoticiaViewModel
+            {
+                Id = noticia.Id,
+                Titulo = noticia.Titulo,
+                Conteudo = noticia.Conteudo,
+                TagIdsSelecionadas = noticia.Tags.Select(t => t.Id).ToList()
+            };
+
+            return PartialView("_EditPartial", viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromBody] NoticiaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { sucesso = false, erros = ModelState });
+            }
+
+            try
+            {
+                var noticiaDto = new NoticiaDto
+                {
+                    Id = model.Id,
+                    Titulo = model.Titulo,
+                    Conteudo = model.Conteudo,
+                    TagIds = model.TagIdsSelecionadas
+                };
+
+                await _servicoNoticia.AtualizarAsync(noticiaDto);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var noticia = await _servicoNoticia.ObterPorIdAsync(id);
+            if (noticia == null)
+                return NotFound();
+
+            var viewModel = new NoticiaViewModel
+            {
+                Id = noticia.Id,
+                Titulo = noticia.Titulo,
+                Conteudo = noticia.Conteudo,
+                DataPublicacao = noticia.DataPublicacao
+            };
+
+            return PartialView("_DeletePartial", viewModel);
+
+            //return View(viewModel);
+        }
+
+        /*[HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _servicoNoticia.RemoverAsync(id);
+            return RedirectToAction(nameof(Index));
+        }*/
+
+        [HttpDelete("DeleteConfirmed/{id}")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                await _servicoNoticia.RemoverAsync(id);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+    }
+}
+
+
+
+Program.cs:
+
+
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Aplicacao.Servicos;
+using ICiProvaCandidato.Dominio.Repositorios;
+using ICiProvaCandidato.Infra.Dados;
+using ICiProvaCandidato.Infra.Dados.Repositorios;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ContextoSistemaNoticiasDDD>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+ );
+
+//var options = new DbContextOptionsBuilder<ContextoSistemaNoticiasDDD>()
+  //  .UseInMemoryDatabase("TestDatabase")
+    //.Options;
+
+
+builder.Services.AddScoped<IRepositorioNoticia, RepositorioNoticia>();
+builder.Services.AddScoped<IRepositorioTag, RepositorioTag>();
+
+
+builder.Services.AddScoped<IServicoAplicacaoNoticia, ServicoAplicacaoNoticia>();
+builder.Services.AddScoped<IServicoAplicacaoTag, ServicoAplicacaoTag>();
+
+
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
+var app = builder.Build();
+
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+/*app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { error = "Erro interno" });
+    });
+});*/
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Noticia}/{action=Index}/{id?}");
+
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); 
+});
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ContextoSistemaNoticiasDDD>();
+    //context.Database.Migrate();
+}
+
+app.Run();

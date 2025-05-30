@@ -1,0 +1,64 @@
+ICiProvaCandidato/
+├── src/
+│   ├── ICiProvaCandidato.Dominio/
+│   │   ├── Entidades/
+│   │   │   ├── Noticia.cs
+│   │   │   ├── Tag.cs
+│   │   │   └── NoticiaTag.cs
+│   │   ├── ObjetosValor/
+│   │   │   └── TituloNoticia.cs
+│   │   ├── Repositorios/
+│   │   │   ├── IRepositorioNoticia.cs
+│   │   │   └── IRepositorioTag.cs
+│   │   ├── Servicos/
+│   │   │   └── IServicoNoticia.cs
+│   │   └── Especificacoes/
+│   │       └── EspecificacaoNoticia.cs
+│   ├── ICiProvaCandidato.Aplicacao/
+│   │   ├── Servicos/
+│   │   │   ├── ServicoAplicacaoNoticia.cs
+│   │   │   └── ServicoAplicacaoTag.cs
+│   │   ├── DTOs/
+│   │   │   ├── NoticiaDto.cs
+│   │   │   └── TagDto.cs
+│   │   ├── Interfaces/
+│   │   │   ├── IServicoAplicacaoNoticia.cs
+│   │   │   └── IServicoAplicacaoTag.cs
+│   │   └── Validadores/
+│   │       ├── ValidadorNoticia.cs
+│   │       └── ValidadorTag.cs
+│   ├── ICiProvaCandidato.Infra/
+│   │   ├── Dados/
+│   │   │   ├── ContextoSistemaNoticiasDDD.cs
+│   │   │   ├── Configuracoes/
+│   │   │   │   ├── ConfiguracaoNoticia.cs
+│   │   │   │   └── ConfiguracaoTag.cs
+│   │   │   └── Repositorios/
+│   │   │       ├── RepositorioNoticia.cs
+│   │   │       └── RepositorioTag.cs
+│   │   ├── Migrations/
+│   │   └── Servicos/
+│   │       └── ServicoNoticia.cs
+│   └── ICiProvaCandidato.Web/
+│       ├── Controllers/
+│       │   ├── NoticiaController.cs
+│       │   └── TagController.cs
+│       ├── Views/
+│       │   ├── Noticia/
+│       │   │   ├── Index.cshtml
+│       │   │   ├── Create.cshtml
+│       │   │   ├── Edit.cshtml
+│       │   │   └── Delete.cshtml
+│       │   └── Tag/
+│       │       ├── Index.cshtml
+│       │       ├── Create.cshtml
+│       │       ├── Edit.cshtml
+│       │       └── Delete.cshtml
+│       ├── wwwroot/
+│       │   └── js/
+│       │       └── noticia.js
+│       ├── Models/
+│       │   ├── NoticiaViewModel.cs
+│       │   └── TagViewModel.cs
+│       ├── Program.cs
+│       └── appsettings.json

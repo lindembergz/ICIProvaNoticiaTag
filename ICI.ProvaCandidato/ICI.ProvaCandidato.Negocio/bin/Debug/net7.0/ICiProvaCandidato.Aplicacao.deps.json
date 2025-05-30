@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "ICiProvaCandidato.Aplicacao/1.0.0": {
+        "dependencies": {
+          "ICiProvaCandidato.Dominio": "1.0.0"
+        },
+        "runtime": {
+          "ICiProvaCandidato.Aplicacao.dll": {}
+        }
+      },
+      "ICiProvaCandidato.Dominio/1.0.0": {
+        "runtime": {
+          "ICiProvaCandidato.Dominio.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ICiProvaCandidato.Aplicacao/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ICiProvaCandidato.Dominio/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

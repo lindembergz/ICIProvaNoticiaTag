@@ -1,0 +1,112 @@
+﻿@model IEnumerable<ICiProvaCandidato.Web.Models.NoticiaViewModel>
+
+@{
+    ViewData["Title"] = "Notícias";
+}
+
+        <!-- Search Form -->
+        <div class="mb-4">
+            <form id="formPesquisa">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="termoPesquisa" name="termoPesquisa" 
+                           placeholder="Pesquisar por título ou conteúdo..." 
+                           value="@ViewBag.TermoPesquisa">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i> Pesquisar
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewBag.TermoPesquisa))
+                    {
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            Limpar
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>@ViewData["Title"]</h2>
+            <button type="button" class="btn btn-primary" id="btnNovaNoticia">
+                <i class="fas fa-plus"></i> Nova Notícia
+            </button>
+        </div>
+
+        @if (!Model.Any() && !string.IsNullOrEmpty(ViewBag.TermoPesquisa))
+        {
+            <div class="alert alert-info">
+                Nenhuma notícia encontrada para o termo "@ViewBag.TermoPesquisa".
+            </div>
+        }
+        else if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                Nenhuma notícia cadastrada.
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var noticia in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@noticia.Titulo</h5>
+                                <p class="card-text">
+                                    @Html.Raw(noticia.Conteudo.Length > 150
+                                             ? noticia.Conteudo.Substring(0, 150) + "..."
+                                             : noticia.Conteudo)
+                                </p>
+                                <div class="mb-2">
+                                    @foreach (var tag in noticia.Tags)
+                                    {
+                                        <span class="badge bg-secondary me-1">@tag.Nome</span>
+                                    }
+                                </div>
+                                <small class="text-muted">
+                                    Publicado em @noticia.DataPublicacao.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100">
+                                    <button type="button" class="btn btn-outline-primary btn-editar"
+                                            data-id="@noticia.Id">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <a class="btn btn-outline-danger btn-excluir" data-id="@noticia.Id">
+                                        <i class="fas fa-trash"></i> Excluir 
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal para formulários -->
+<div class="modal fade" id="modalFormulario" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notícia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Conteúdo carregado via Ajax -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/noticia.js"></script>
+}

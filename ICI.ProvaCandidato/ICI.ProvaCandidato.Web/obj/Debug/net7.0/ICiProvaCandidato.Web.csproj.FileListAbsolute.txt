@@ -1,0 +1,8 @@
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.csproj.AssemblyReference.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.AssemblyInfoInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.AssemblyInfo.cs
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.csproj.CoreCompileInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.RazorAssemblyInfo.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Web\obj\Debug\net7.0\ICiProvaCandidato.Web.RazorAssemblyInfo.cs

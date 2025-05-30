@@ -1,0 +1,15 @@
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\bin\Debug\net7.0\ICiProvaCandidato.Aplicacao.deps.json
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\bin\Debug\net7.0\ICiProvaCandidato.Aplicacao.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\bin\Debug\net7.0\ICiProvaCandidato.Aplicacao.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\bin\Debug\net7.0\ICiProvaCandidato.Dominio.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\bin\Debug\net7.0\ICiProvaCandidato.Dominio.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.csproj.AssemblyReference.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.AssemblyInfoInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.AssemblyInfo.cs
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.csproj.CoreCompileInputs.cache
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProva.24AF0F72.Up2Date
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\refint\ICiProvaCandidato.Aplicacao.dll
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ICiProvaCandidato.Aplicacao.pdb
+C:\Users\linde\Downloads\Prova .Net (1)\ProvaCandidato - 1\ProvaCandidato\ICI.ProvaCandidato\ICI.ProvaCandidato.Negocio\obj\Debug\net7.0\ref\ICiProvaCandidato.Aplicacao.dll

@@ -1,0 +1,1864 @@
+<Program.cs>
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Aplicacao.Servicos;
+using ICiProvaCandidato.Dominio.Repositorios;
+using ICiProvaCandidato.Dominio.UoW;
+using ICiProvaCandidato.Infra.Dados;
+using ICiProvaCandidato.Infra.Dados.Repositorios;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddDbContextPool<ContextoSistemaNoticiasDDD>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IRepositorioNoticia, RepositorioNoticia>();
+builder.Services.AddScoped<IRepositorioTag, RepositorioTag>();
+builder.Services.AddScoped<IServicoAplicacaoNoticia, ServicoAplicacaoNoticia>();
+builder.Services.AddScoped<IServicoAplicacaoTag, ServicoAplicacaoTag>();
+
+
+
+
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+       // options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
+builder.Services.AddResponseCompression();
+
+
+var app = builder.Build();
+
+app.UseResponseCompression();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); 
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Noticia}/{action=Index}/{id?}");
+});
+
+app.Run();
+</Program.cs>
+<ContextoSistemaNoticiasDDD.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using ICiProvaCandidato.Infra.Dados.Configuracoes;
+using Microsoft.EntityFrameworkCore;
+
+namespace ICiProvaCandidato.Infra.Dados
+{
+    public class ContextoSistemaNoticiasDDD : DbContext
+    {
+        public ContextoSistemaNoticiasDDD(DbContextOptions<ContextoSistemaNoticiasDDD> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Noticia> Noticias { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<NoticiaTag> NoticiaTags { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new ConfiguracaoNoticia());
+            modelBuilder.ApplyConfiguration(new ConfiguracaoTag());
+            modelBuilder.ApplyConfiguration(new ConfiguracaoNoticiaTag());
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+</ContextoSistemaNoticiasDDD.cs>
+<UnitOfWork.cs>
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Repositorios;
+using ICiProvaCandidato.Infra.Dados;
+using ICiProvaCandidato.Infra.Dados.Repositorios;
+
+namespace ICiProvaCandidato.Dominio.UoW
+{
+    public class UnitOfWork : IUnitOfWork
+    {
+        private readonly ContextoSistemaNoticiasDDD _contexto;
+
+        public IRepositorioNoticia RepositorioNoticia { get; }
+        public IRepositorioTag RepositorioTag { get; }
+
+        public UnitOfWork(ContextoSistemaNoticiasDDD contexto)
+        {
+            _contexto = contexto;
+            RepositorioNoticia = new RepositorioNoticia(_contexto);
+            RepositorioTag = new RepositorioTag(_contexto);
+        }
+
+        public async Task CommitAsync()
+        {
+            await _contexto.SaveChangesAsync();
+        }
+    }
+}
+
+</UnitOfWork.cs>
+<20250529131055_Migracao1.cs>
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace ICiProvaCandidato.Infra.Migrations
+{
+    /// <inheritdoc />
+    public partial class Migracao1 : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "Noticias",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Titulo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Conteudo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DataPublicacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Ativa = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Noticias", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Descricao = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Ativa = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NoticiaTags",
+                columns: table => new
+                {
+                    NoticiaId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NoticiaTags", x => new { x.NoticiaId, x.TagId });
+                    table.ForeignKey(
+                        name: "FK_NoticiaTags_Noticias_NoticiaId",
+                        column: x => x.NoticiaId,
+                        principalTable: "Noticias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_NoticiaTags_Tags_TagId",
+                        column: x => x.TagId,
+                        principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Noticias_DataPublicacao",
+                table: "Noticias",
+                column: "DataPublicacao");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Noticias_Titulo",
+                table: "Noticias",
+                column: "Titulo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NoticiaTags_NoticiaId_TagId",
+                table: "NoticiaTags",
+                columns: new[] { "NoticiaId", "TagId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NoticiaTags_TagId",
+                table: "NoticiaTags",
+                column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tags_Nome",
+                table: "Tags",
+                column: "Nome",
+                unique: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "NoticiaTags");
+
+            migrationBuilder.DropTable(
+                name: "Noticias");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
+        }
+    }
+}
+
+</20250529131055_Migracao1.cs>
+<20250529131055_Migracao1.Designer.cs>
+// <auto-generated />
+using System;
+using ICiProvaCandidato.Infra.Dados;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable disable
+
+namespace ICiProvaCandidato.Infra.Migrations
+{
+    [DbContext(typeof(ContextoSistemaNoticiasDDD))]
+    [Migration("20250529131055_Migracao1")]
+    partial class Migracao1
+    {
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.16")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Noticia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Ativa")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Conteudo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DataPublicacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataPublicacao")
+                        .HasDatabaseName("IX_Noticias_DataPublicacao");
+
+                    b.HasIndex("Titulo")
+                        .HasDatabaseName("IX_Noticias_Titulo");
+
+                    b.ToTable("Noticias", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.NoticiaTag", b =>
+                {
+                    b.Property<int>("NoticiaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NoticiaId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("NoticiaId", "TagId")
+                        .HasDatabaseName("IX_NoticiaTags_NoticiaId_TagId");
+
+                    b.ToTable("NoticiaTags", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Ativa")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tags_Nome");
+
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.NoticiaTag", b =>
+                {
+                    b.HasOne("ICiProvaCandidato.Dominio.Entidades.Noticia", "Noticia")
+                        .WithMany("NoticiaTags")
+                        .HasForeignKey("NoticiaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ICiProvaCandidato.Dominio.Entidades.Tag", "Tag")
+                        .WithMany("NoticiaTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Noticia");
+
+                    b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Noticia", b =>
+                {
+                    b.Navigation("NoticiaTags");
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Tag", b =>
+                {
+                    b.Navigation("NoticiaTags");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+</20250529131055_Migracao1.Designer.cs>
+<ContextoSistemaNoticiasDDDModelSnapshot.cs>
+// <auto-generated />
+using System;
+using ICiProvaCandidato.Infra.Dados;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable disable
+
+namespace ICiProvaCandidato.Infra.Migrations
+{
+    [DbContext(typeof(ContextoSistemaNoticiasDDD))]
+    partial class ContextoSistemaNoticiasDDDModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.16")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Noticia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Ativa")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Conteudo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DataPublicacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataPublicacao")
+                        .HasDatabaseName("IX_Noticias_DataPublicacao");
+
+                    b.HasIndex("Titulo")
+                        .HasDatabaseName("IX_Noticias_Titulo");
+
+                    b.ToTable("Noticias", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.NoticiaTag", b =>
+                {
+                    b.Property<int>("NoticiaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NoticiaId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("NoticiaId", "TagId")
+                        .HasDatabaseName("IX_NoticiaTags_NoticiaId_TagId");
+
+                    b.ToTable("NoticiaTags", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Ativa")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tags_Nome");
+
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.NoticiaTag", b =>
+                {
+                    b.HasOne("ICiProvaCandidato.Dominio.Entidades.Noticia", "Noticia")
+                        .WithMany("NoticiaTags")
+                        .HasForeignKey("NoticiaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ICiProvaCandidato.Dominio.Entidades.Tag", "Tag")
+                        .WithMany("NoticiaTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Noticia");
+
+                    b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Noticia", b =>
+                {
+                    b.Navigation("NoticiaTags");
+                });
+
+            modelBuilder.Entity("ICiProvaCandidato.Dominio.Entidades.Tag", b =>
+                {
+                    b.Navigation("NoticiaTags");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+</ContextoSistemaNoticiasDDDModelSnapshot.cs>
+<NoticiaDto.cs>
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ICiProvaCandidato.Aplicacao.DTOs
+{
+    public class NoticiaDto
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Título é obrigatório")]
+        [StringLength(200, ErrorMessage = "Título não pode exceder 200 caracteres")]
+        public string Titulo { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Conteúdo é obrigatório")]
+        public string Conteudo { get; set; } = string.Empty;
+
+        public DateTime DataPublicacao { get; set; }
+        public bool? Ativa { get; set; }
+
+        public List<int> TagIds { get; set; } = new();
+        public List<TagDto> Tags { get; set; } = new();
+    }
+}
+
+</NoticiaDto.cs>
+<TagDto.cs>
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ICiProvaCandidato.Aplicacao.DTOs
+{
+    public class TagDto
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Nome é obrigatório")]
+        [StringLength(50, ErrorMessage = "Nome não pode exceder 50 caracteres")]
+        public string Nome { get; set; } = string.Empty;
+
+        [StringLength(200, ErrorMessage = "Descrição não pode exceder 200 caracteres")]
+        public string Descricao { get; set; } = string.Empty;
+
+        public bool? Ativa { get; set; }
+    }
+}
+
+</TagDto.cs>
+<IServicoAplicacaoNoticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Aplicacao.DTOs;
+
+namespace ICiProvaCandidato.Aplicacao.Interfaces
+{
+    public interface IServicoAplicacaoNoticia
+    {
+        Task<NoticiaDto?> ObterPorIdAsync(int id);
+        Task<IEnumerable<NoticiaDto>> ObterTodosAsync();
+        Task<IEnumerable<NoticiaDto>> ObterPorTagAsync(int tagId);
+        Task<NoticiaDto> CriarAsync(NoticiaDto noticiaDto);
+        Task<NoticiaDto> AtualizarAsync(NoticiaDto noticiaDto);
+        Task RemoverAsync(int id);
+        Task<bool> ExisteAsync(int id);
+    }
+}
+
+</IServicoAplicacaoNoticia.cs>
+<IServicoAplicacaoTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Aplicacao.DTOs;
+
+namespace ICiProvaCandidato.Aplicacao.Interfaces
+{
+    public interface IServicoAplicacaoTag
+    {
+        Task<TagDto?> ObterPorIdAsync(int id);
+        Task<IEnumerable<TagDto>> ObterTodosAsync();
+        Task<IEnumerable<TagDto>> ObterPorNomeAsync(string nome);
+        Task<TagDto> CriarAsync(TagDto tagDto);
+        Task<TagDto> AtualizarAsync(TagDto tagDto);
+        Task RemoverAsync(int id);
+        Task<bool> ExisteAsync(int id);
+        Task<bool> ExisteComNomeAsync(string nome, int? idExcluir = null);
+    }
+}
+
+</IServicoAplicacaoTag.cs>
+<ServicoAplicacaoNoticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Aplicacao.DTOs;
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Dominio.Entidades;
+using ICiProvaCandidato.Dominio.Repositorios;
+using ICiProvaCandidato.Dominio.UoW;
+
+namespace ICiProvaCandidato.Aplicacao.Servicos
+{
+    public class ServicoAplicacaoNoticia : IServicoAplicacaoNoticia
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ServicoAplicacaoNoticia(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<NoticiaDto?> ObterPorIdAsync(int id)
+        {
+            var noticia = await _unitOfWork.RepositorioNoticia.ObterPorIdAsync(id);
+            return noticia != null ? ConverterParaDto(noticia) : null;
+        }
+
+        public async Task<IEnumerable<NoticiaDto>> ObterTodosAsync()
+        {
+            var noticias = await _unitOfWork.RepositorioNoticia.ObterTodosAsync();
+            return noticias.Select(ConverterParaDto);
+        }
+
+        public async Task<IEnumerable<NoticiaDto>> ObterPorTagAsync(int tagId)
+        {
+            var noticias = await _unitOfWork.RepositorioNoticia.ObterPorTagAsync(tagId);
+            return noticias.Select(ConverterParaDto);
+        }
+
+        public async Task<NoticiaDto> CriarAsync(NoticiaDto noticiaDto)
+        {
+            var noticia = new Noticia(noticiaDto.Titulo, noticiaDto.Conteudo);
+            var noticiaAdicionada = await _unitOfWork.RepositorioNoticia.AdicionarAsync(noticia);
+
+            if (noticiaDto.TagIds?.Any() == true)
+            {
+                foreach (var tagId in noticiaDto.TagIds)
+                {
+                    var tag = await _unitOfWork.RepositorioTag.ObterPorIdAsync(tagId);
+                    if (tag != null)
+                        noticiaAdicionada.AdicionarTag(tag);
+                }
+                await _unitOfWork.RepositorioNoticia.AtualizarAsync(noticiaAdicionada);
+                noticiaAdicionada = await _unitOfWork.RepositorioNoticia.ObterPorIdAsync(noticiaAdicionada.Id);
+            }
+
+            await _unitOfWork.CommitAsync();
+            return ConverterParaDto(noticiaAdicionada);
+        }
+
+        public async Task<NoticiaDto> AtualizarAsync(NoticiaDto noticiaDto)
+        {
+            var noticia = await _unitOfWork.RepositorioNoticia.ObterPorIdAsync(noticiaDto.Id);
+            if (noticia == null)
+                throw new ArgumentException("Notícia não encontrada");
+
+            noticia.AtualizarTitulo(noticiaDto.Titulo);
+            noticia.AtualizarConteudo(noticiaDto.Conteudo);
+
+            foreach (var noticiaTag in noticia.NoticiaTags.ToList())
+            {
+                noticia.RemoverTag(noticiaTag.TagId);
+            }
+
+            if (noticiaDto.TagIds?.Any() == true)
+            {
+                foreach (var tagId in noticiaDto.TagIds)
+                {
+                    var tag = await _unitOfWork.RepositorioTag.ObterPorIdAsync(tagId);
+                    if (tag != null)
+                        noticia.AdicionarTag(tag);
+                }
+            }
+
+            await _unitOfWork.RepositorioNoticia.AtualizarAsync(noticia);
+            await _unitOfWork.CommitAsync();
+
+            noticia = await _unitOfWork.RepositorioNoticia.ObterPorIdAsync(noticiaDto.Id);
+            return ConverterParaDto(noticia);
+        }
+
+        public async Task RemoverAsync(int id)
+        {
+            await _unitOfWork.RepositorioNoticia.RemoverAsync(id);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<bool> ExisteAsync(int id)
+        {
+            return await _unitOfWork.RepositorioNoticia.ExisteAsync(id);
+        }
+
+        private static NoticiaDto ConverterParaDto(Noticia noticia)
+        {
+            return new NoticiaDto
+            {
+                Id = noticia.Id,
+                Titulo = noticia.Titulo,
+                Conteudo = noticia.Conteudo,
+                DataPublicacao = noticia.DataPublicacao,
+                Ativa = noticia.Ativa,
+                Tags = noticia.NoticiaTags?.Select(nt => new TagDto
+                {
+                    Id = nt.Tag.Id,
+                    Nome = nt.Tag.Nome,
+                    Descricao = nt.Tag.Descricao,
+                    Ativa = nt.Tag.Ativa
+                }).ToList() ?? new List<TagDto>()
+            };
+        }
+    }
+}
+
+</ServicoAplicacaoNoticia.cs>
+<ServicoAplicacaoTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Aplicacao.DTOs;
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Dominio.Entidades;
+using ICiProvaCandidato.Dominio.Repositorios;
+
+namespace ICiProvaCandidato.Aplicacao.Servicos
+{
+    public class ServicoAplicacaoTag : IServicoAplicacaoTag
+    {
+        private readonly IRepositorioTag _repositorioTag;
+
+        public ServicoAplicacaoTag(IRepositorioTag repositorioTag)
+        {
+            _repositorioTag = repositorioTag;
+        }
+
+        public async Task<TagDto?> ObterPorIdAsync(int id)
+        {
+            var tag = await _repositorioTag.ObterPorIdAsync(id);
+            return tag != null ? ConverterParaDto(tag) : null;
+        }
+
+        public async Task<IEnumerable<TagDto>> ObterTodosAsync()
+        {
+            var tags = await _repositorioTag.ObterTodosAsync();
+            return tags.Select(ConverterParaDto);
+        }
+
+        public async Task<IEnumerable<TagDto>> ObterPorNomeAsync(string nome)
+        {
+            var tags = await _repositorioTag.ObterPorNomeAsync(nome);
+            return tags.Select(ConverterParaDto);
+        }
+
+        public async Task<TagDto> CriarAsync(TagDto tagDto)
+        {
+            // Validar se já existe tag com o mesmo nome
+            if (await _repositorioTag.ExisteComNomeAsync(tagDto.Nome))
+                throw new InvalidOperationException($"Já existe uma tag com o nome '{tagDto.Nome}'");
+
+            var tag = new Tag(tagDto.Nome, tagDto.Descricao);
+            var tagAdicionada = await _repositorioTag.AdicionarAsync(tag);
+
+            return ConverterParaDto(tagAdicionada);
+        }
+
+        public async Task<TagDto> AtualizarAsync(TagDto tagDto)
+        {
+            var tag = await _repositorioTag.ObterPorIdAsync(tagDto.Id);
+            if (tag == null)
+                throw new ArgumentException("Tag não encontrada");
+
+            // Validar se já existe outra tag com o mesmo nome
+            if (await _repositorioTag.ExisteComNomeAsync(tagDto.Nome, tagDto.Id))
+                throw new InvalidOperationException($"Já existe uma tag com o nome '{tagDto.Nome}'");
+
+            tag.AtualizarNome(tagDto.Nome);
+            tag.AtualizarDescricao(tagDto.Descricao);
+
+            // Corrigido o problema de conversão de bool? para bool
+            if (tagDto.Ativa.HasValue && tagDto.Ativa.Value)
+                tag.Ativar();
+            else
+                tag.Desativar();
+
+            await _repositorioTag.AtualizarAsync(tag);
+            return ConverterParaDto(tag);
+        }
+
+        public async Task RemoverAsync(int id)
+        {
+            var tag = await _repositorioTag.ObterPorIdAsync(id);
+            if (tag == null)
+                throw new ArgumentException("Tag não encontrada");
+
+            // Verificar se a tag está sendo usada em notícias
+            if (tag.NoticiaTags.Any())
+                throw new InvalidOperationException("Não é possível remover uma tag que está sendo utilizada em notícias");
+
+            await _repositorioTag.RemoverAsync(id);
+        }
+
+        public async Task<bool> ExisteAsync(int id)
+        {
+            return await _repositorioTag.ExisteAsync(id);
+        }
+
+        public async Task<bool> ExisteComNomeAsync(string nome, int? idExcluir = null)
+        {
+            return await _repositorioTag.ExisteComNomeAsync(nome, idExcluir);
+        }
+
+        private static TagDto ConverterParaDto(Tag tag)
+        {
+            return new TagDto
+            {
+                Id = tag.Id,
+                Nome = tag.Nome,
+                Descricao = tag.Descricao,
+                Ativa = tag.Ativa
+            };
+        }
+    }
+}
+
+</ServicoAplicacaoTag.cs>
+<NoticiaController.cs>
+using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.Mvc;
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Web.Models;
+using ICiProvaCandidato.Aplicacao.DTOs;
+using System.Linq;
+using ICiProvaCandidato.Web.Requests;
+
+namespace ICiProvaCandidato.Web.Controllers
+{
+    public class NoticiaController : Controller
+    {
+        private readonly IServicoAplicacaoNoticia _servicoNoticia;
+        private readonly IServicoAplicacaoTag _servicoTag;
+
+        public NoticiaController(
+            IServicoAplicacaoNoticia servicoNoticia,
+            IServicoAplicacaoTag servicoTag)
+        {
+            _servicoNoticia = servicoNoticia;
+            _servicoTag = servicoTag;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var noticias = await _servicoNoticia.ObterTodosAsync();
+            var viewModel = noticias.Select(n => new NoticiaViewModel
+            {
+                Id = n.Id,
+                Titulo = n.Titulo,
+                Conteudo = n.Conteudo,
+                DataPublicacao = n.DataPublicacao,
+                Ativa = n.Ativa,
+                Tags = n.Tags.Select(t => new TagViewModel
+                {
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Descricao = t.Descricao
+                }).ToList()
+            });
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var tags = await _servicoTag.ObterTodosAsync();
+            ViewBag.Tags = tags;
+            return PartialView("_CreatePartial", new NoticiaViewModel());
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([FromBody] NoticiaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var erros = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { sucesso = false, erros });
+            }
+
+
+            try
+            {
+                var noticiaDto = new NoticiaDto
+                {
+                    Titulo = model.Titulo,
+                    Conteudo = model.Conteudo,
+                    TagIds = model.TagIdsSelecionadas
+                };
+
+                await _servicoNoticia.CriarAsync(noticiaDto);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var noticia = await _servicoNoticia.ObterPorIdAsync(id);
+            if (noticia == null)
+                return NotFound();
+
+            var tags = await _servicoTag.ObterTodosAsync();
+            ViewBag.Tags = tags;
+
+            var viewModel = new NoticiaViewModel
+            {
+                Id = noticia.Id,
+                Titulo = noticia.Titulo,
+                Conteudo = noticia.Conteudo,
+                TagIdsSelecionadas = noticia.Tags.Select(t => t.Id).ToList()
+            };
+
+            return PartialView("_EditPartial", viewModel);
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([FromBody] NoticiaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var erros = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { sucesso = false, erros });
+            }
+
+
+            try
+            {
+                var noticiaDto = new NoticiaDto
+                {
+                    Id = model.Id,
+                    Titulo = model.Titulo,
+                    Conteudo = model.Conteudo,
+                    TagIds = model.TagIdsSelecionadas
+                };
+
+                await _servicoNoticia.AtualizarAsync(noticiaDto);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var noticia = await _servicoNoticia.ObterPorIdAsync(id);
+            if (noticia == null)
+                return NotFound();
+
+            var viewModel = new NoticiaViewModel
+            {
+                Id = noticia.Id,
+                Titulo = noticia.Titulo,
+                Conteudo = noticia.Conteudo,
+                DataPublicacao = noticia.DataPublicacao
+            };
+
+            return PartialView("_DeletePartial", viewModel);
+        }
+
+        /*
+         A razão para usar [HttpPost] em vez de [HttpDelete] para operações de exclusão em ASP.NET Core MVC 
+         está relacionada às limitações dos formulários HTML e questões de segurança.
+         */
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete([FromBody] DeleteRequest request)
+        {
+            try
+            {
+                if (request.Id <= 0)
+                {
+                    return Json(new { sucesso = false, mensagem = "ID inválido para exclusão" });
+                }
+                await _servicoNoticia.RemoverAsync(request.Id);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+
+
+    }
+}
+
+</NoticiaController.cs>
+<TagController.cs>
+using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.Mvc;
+using ICiProvaCandidato.Aplicacao.Interfaces;
+using ICiProvaCandidato.Web.Models;
+using ICiProvaCandidato.Aplicacao.DTOs;
+using System.Linq;
+using ICiProvaCandidato.Web.Requests;
+
+namespace ICIProvaCandidato.Web.Controllers
+{
+
+    public class TagController : Controller
+    {
+        private readonly IServicoAplicacaoTag _servicoTag;
+
+        public TagController(IServicoAplicacaoTag servicoTag)
+        {
+            _servicoTag = servicoTag;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var tags = await _servicoTag.ObterTodosAsync();
+            var viewModel = tags.Select(t => new TagViewModel
+            {
+                Id = t.Id,
+                Nome = t.Nome,
+                Descricao = t.Descricao,
+                Ativa = t.Ativa
+            });
+
+            return View(viewModel);
+        }
+
+        public IActionResult Create()
+        {
+            return View(new TagViewModel());
+        }
+
+        [HttpPost]
+        ///[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TagViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var tagDto = new TagDto
+                {
+                    Nome = model.Nome,
+                    Descricao = model.Descricao
+                };
+
+                await _servicoTag.CriarAsync(tagDto);
+                TempData["Sucesso"] = "Tag criada com sucesso!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var tag = await _servicoTag.ObterPorIdAsync(id);
+            if (tag == null)
+                return NotFound();
+
+            var viewModel = new TagViewModel
+            {
+                Id = tag.Id,
+                Nome = tag.Nome,
+                Descricao = tag.Descricao,
+                Ativa = tag.Ativa
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(TagViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var tagDto = new TagDto
+                {
+                    Id = model.Id,
+                    Nome = model.Nome,
+                    Descricao = model.Descricao,
+                    Ativa = model.Ativa
+                };
+
+                await _servicoTag.AtualizarAsync(tagDto);
+                TempData["Sucesso"] = "Tag atualizada com sucesso!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var tag = await _servicoTag.ObterPorIdAsync(id);
+            if (tag == null)
+                return NotFound();
+
+            var viewModel = new TagViewModel
+            {
+                Id = tag.Id,
+                Nome = tag.Nome,
+                Descricao = tag.Descricao,
+                Ativa = tag.Ativa
+            };
+
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] DeleteRequest request)
+        {
+            try
+            {
+                if (request.Id <= 0)
+                {
+                    return Json(new { sucesso = false, mensagem = "ID inválido para exclusão" });
+                }
+                await _servicoTag.RemoverAsync(request.Id);
+                return Json(new { sucesso = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { sucesso = false, mensagem = ex.Message });
+            }
+        }
+    }
+}
+
+</TagController.cs>
+<ErrorViewModel.cs>
+using System;
+
+namespace ICiProvaCandidato.Web.Models
+{
+	public class ErrorViewModel
+	{
+		public string RequestId { get; set; }
+
+		public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+	}
+}
+
+</ErrorViewModel.cs>
+<NoticiaViewModel.cs>
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System;
+
+namespace ICiProvaCandidato.Web.Models
+{
+    public class NoticiaViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Título é obrigatório")]
+        [StringLength(200, ErrorMessage = "Título não pode exceder 200 caracteres")]
+        [Display(Name = "Título")]
+        public string Titulo { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Conteúdo é obrigatório")]
+        [Display(Name = "Conteúdo")]
+        public string Conteudo { get; set; } = string.Empty;
+
+        [Display(Name = "Data de Publicação")]
+        public DateTime DataPublicacao { get; set; }
+
+        public bool? Ativa { get; set; }
+
+        public List<TagViewModel> Tags { get; set; } = new();
+        public List<int> TagIdsSelecionadas { get; set; } = new();
+    }
+}
+
+</NoticiaViewModel.cs>
+<TagViewModel.cs>
+using System.ComponentModel.DataAnnotations;
+
+namespace ICiProvaCandidato.Web.Models
+{
+    public class TagViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Nome é obrigatório")]
+        [StringLength(50, ErrorMessage = "Nome não pode exceder 50 caracteres")]
+        [Display(Name = "Nome")]
+        public string Nome { get; set; } = string.Empty;
+
+        [StringLength(200, ErrorMessage = "Descrição não pode exceder 200 caracteres")]
+        [Display(Name = "Descrição")]
+        public string Descricao { get; set; } = string.Empty;
+
+        public bool? Ativa { get; set; }
+    }
+}
+
+</TagViewModel.cs>
+<DeleteRequest.cs>
+namespace ICiProvaCandidato.Web.Requests
+{
+    public class DeleteRequest
+    {
+        public int Id { get; set; }
+    }
+}
+
+</DeleteRequest.cs>
+<Noticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ICiProvaCandidato.Dominio.Entidades
+{
+    public class Noticia
+    {
+        public int Id { get; private set; }
+        public string Titulo { get; private set; }
+        public string Conteudo { get; private set; }
+        public DateTime DataPublicacao { get; private set; }
+        public bool? Ativa { get; private set; }
+
+        private readonly List<NoticiaTag> _noticiaTags = new();
+        public IReadOnlyCollection<NoticiaTag> NoticiaTags => _noticiaTags.AsReadOnly();
+
+        protected Noticia() { } 
+
+        public Noticia(string titulo, string conteudo)
+        {
+            ValidarTitulo(titulo);
+            ValidarConteudo(conteudo);
+
+            Titulo = titulo;
+            Conteudo = conteudo;
+            DataPublicacao = DateTime.UtcNow;
+            Ativa = true;
+        }
+        public void AtualizarTitulo(string novoTitulo)
+        {
+            ValidarTitulo(novoTitulo);
+            Titulo = novoTitulo;
+        }
+
+        public void AtualizarConteudo(string novoConteudo)
+        {
+            ValidarConteudo(novoConteudo);
+            Conteudo = novoConteudo;
+        }
+
+        public void AdicionarTag(Tag tag)
+        {
+            if (tag == null)
+                throw new ArgumentNullException(nameof(tag));
+
+            if (_noticiaTags.Any(nt => nt.TagId == tag.Id))
+                return; // Tag já associada
+
+            _noticiaTags.Add(new NoticiaTag(Id, tag.Id));
+        }
+
+        public void RemoverTag(int tagId)
+        {
+            var noticiaTag = _noticiaTags.FirstOrDefault(nt => nt.TagId == tagId);
+            if (noticiaTag != null)
+                _noticiaTags.Remove(noticiaTag);
+        }
+
+        public void Ativar() => Ativa = true;
+        public void Desativar() => Ativa = false;
+
+        private static void ValidarTitulo(string titulo)
+        {
+            if (string.IsNullOrWhiteSpace(titulo))
+                throw new ArgumentException("Título é obrigatório", nameof(titulo));
+
+            if (titulo.Length > 200)
+                throw new ArgumentException("Título não pode exceder 200 caracteres", nameof(titulo));
+        }
+
+        private static void ValidarConteudo(string conteudo)
+        {
+            if (string.IsNullOrWhiteSpace(conteudo))
+                throw new ArgumentException("Conteúdo é obrigatório", nameof(conteudo));
+        }
+    }
+}
+
+</Noticia.cs>
+<NoticiaTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ICiProvaCandidato.Dominio.Entidades
+{
+    public class NoticiaTag
+    {
+        public int NoticiaId { get; private set; }
+        public int TagId { get; private set; }
+
+        public Noticia Noticia { get; private set; }
+        public Tag Tag { get; private set; }
+
+        protected NoticiaTag() { }
+
+        public NoticiaTag(int noticiaId, int tagId)
+        {
+            NoticiaId = noticiaId;
+            TagId = tagId;
+        }
+    }
+}
+
+</NoticiaTag.cs>
+<Tag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ICiProvaCandidato.Dominio.Entidades
+{
+    public class Tag
+    {
+        public int Id { get; private set; }
+        public string Nome { get; private set; }
+        public string Descricao { get; private set; }
+        public bool? Ativa { get; private set; }
+
+        private readonly List<NoticiaTag> _noticiaTags = new();
+        public IReadOnlyCollection<NoticiaTag> NoticiaTags => _noticiaTags.AsReadOnly();
+
+        protected Tag() { } 
+
+        public Tag(string nome, string descricao = "")
+        {
+            ValidarNome(nome);
+            Nome = nome;
+            Descricao = descricao ?? string.Empty;
+            Ativa = true;
+        }
+
+        public void AtualizarNome(string novoNome)
+        {
+            ValidarNome(novoNome);
+            Nome = novoNome;
+        }
+
+        public void AtualizarDescricao(string novaDescricao)
+        {
+            Descricao = novaDescricao ?? string.Empty;
+        }
+
+        public void Ativar() => Ativa = true;
+        public void Desativar() => Ativa = false;
+
+        private static void ValidarNome(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                throw new ArgumentException("Nome da tag é obrigatório", nameof(nome));
+
+            if (nome.Length > 50)
+                throw new ArgumentException("Nome da tag não pode exceder 50 caracteres", nameof(nome));
+        }
+    }
+}
+
+</Tag.cs>
+<IRepositorioNoticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+
+namespace ICiProvaCandidato.Dominio.Repositorios
+{
+    public interface IRepositorioNoticia
+    {
+        Task<Noticia?> ObterPorIdAsync(int id);
+        Task<IEnumerable<Noticia>> ObterTodosAsync();
+        Task<IEnumerable<Noticia>> ObterPorTagAsync(int tagId);
+        Task<Noticia> AdicionarAsync(Noticia noticia);
+        Task AtualizarAsync(Noticia noticia);
+        Task RemoverAsync(int id);
+        Task<bool> ExisteAsync(int id);
+    }
+}
+
+</IRepositorioNoticia.cs>
+<IRepositorioTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+
+namespace ICiProvaCandidato.Dominio.Repositorios
+{
+    public interface IRepositorioTag
+    {
+        Task<Tag?> ObterPorIdAsync(int id);
+        Task<IEnumerable<Tag>> ObterTodosAsync();
+        Task<IEnumerable<Tag>> ObterPorNomeAsync(string nome);
+        Task<Tag> AdicionarAsync(Tag tag);
+        Task AtualizarAsync(Tag tag);
+        Task RemoverAsync(int id);
+        Task<bool> ExisteAsync(int id);
+        Task<bool> ExisteComNomeAsync(string nome, int? idExcluir = null);
+    }
+}
+
+</IRepositorioTag.cs>
+<IUnitOfWork.cs>
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Repositorios;
+
+namespace ICiProvaCandidato.Dominio.UoW
+{
+    public interface IUnitOfWork
+    {
+        IRepositorioNoticia RepositorioNoticia { get; }
+        IRepositorioTag RepositorioTag { get; }
+        Task CommitAsync();
+    }
+}
+
+
+</IUnitOfWork.cs>
+<ConfiguracaoNoticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+
+namespace ICiProvaCandidato.Infra.Dados.Configuracoes
+{
+    public class ConfiguracaoNoticia : IEntityTypeConfiguration<Noticia>
+    {
+        public void Configure(EntityTypeBuilder<Noticia> builder)
+        {
+
+            
+            builder.ToTable("Noticias");
+
+            builder.HasKey(n => n.Id);
+
+            builder.Property(n => n.Id)
+                .UseIdentityColumn();
+
+            builder.Property(n => n.Titulo)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            builder.Property(n => n.Conteudo)
+                .IsRequired()
+                .HasColumnType("nvarchar(max)");
+
+            builder.Property(n => n.DataPublicacao)
+                .IsRequired()
+                .HasColumnType("datetime2");
+
+            builder.Property(n => n.Ativa)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            builder.HasIndex(n => n.Titulo)
+                .HasDatabaseName("IX_Noticias_Titulo");
+
+            builder.HasIndex(n => n.DataPublicacao)
+                .HasDatabaseName("IX_Noticias_DataPublicacao");
+        }
+    }
+}
+
+</ConfiguracaoNoticia.cs>
+<ConfiguracaoNoticiaTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ICiProvaCandidato.Infra.Dados.Configuracoes
+{
+    public class ConfiguracaoNoticiaTag : IEntityTypeConfiguration<NoticiaTag>
+    {
+        public void Configure(EntityTypeBuilder<NoticiaTag> builder)
+        {
+            builder.ToTable("NoticiaTags");
+
+            builder.HasKey(nt => new { nt.NoticiaId, nt.TagId });
+
+            builder.HasOne(nt => nt.Noticia)
+                .WithMany(n => n.NoticiaTags)
+                .HasForeignKey(nt => nt.NoticiaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(nt => nt.Tag)
+                .WithMany(t => t.NoticiaTags)
+                .HasForeignKey(nt => nt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(nt => new { nt.NoticiaId, nt.TagId })
+            .HasDatabaseName("IX_NoticiaTags_NoticiaId_TagId");
+        }
+    }
+}
+
+</ConfiguracaoNoticiaTag.cs>
+<ConfiguracaoTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ICiProvaCandidato.Infra.Dados.Configuracoes
+{
+    public class ConfiguracaoTag : IEntityTypeConfiguration<Tag>
+    {
+        public void Configure(EntityTypeBuilder<Tag> builder)
+        {
+            builder.ToTable("Tags");
+
+            builder.HasKey(t => t.Id);
+
+            builder.Property(t => t.Id)
+                .UseIdentityColumn();
+
+            builder.Property(t => t.Nome)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Property(t => t.Descricao)
+                .HasMaxLength(200);
+
+            builder.Property(t => t.Ativa)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            builder.HasIndex(t => t.Nome)
+                .IsUnique()
+                .HasDatabaseName("IX_Tags_Nome");
+        }
+    }
+}
+
+</ConfiguracaoTag.cs>
+<RepositorioNoticia.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using ICiProvaCandidato.Dominio.Repositorios;
+using Microsoft.EntityFrameworkCore;
+
+namespace ICiProvaCandidato.Infra.Dados.Repositorios
+{
+    public class RepositorioNoticia : IRepositorioNoticia
+    {
+        private readonly ContextoSistemaNoticiasDDD _contexto;
+
+        public RepositorioNoticia(ContextoSistemaNoticiasDDD contexto)
+        {
+            _contexto = contexto;
+        }
+
+        private static readonly Func<ContextoSistemaNoticiasDDD, int, Task<Noticia?>> _getByIdQuery =
+      EF.CompileAsyncQuery((ContextoSistemaNoticiasDDD context, int id) =>
+          context.Noticias
+              .Include(n => n.NoticiaTags)
+              .ThenInclude(nt => nt.Tag)
+              .AsNoTracking()
+              .FirstOrDefault(n => n.Id == id));
+
+        public async Task<Noticia?> ObterPorIdAsync(int id)
+        {
+            return await _getByIdQuery(_contexto, id);
+
+            /*return await _contexto.Noticias
+                .Include(n => n.NoticiaTags)
+                .ThenInclude(nt => nt.Tag)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.Id == id);*/
+        }
+
+        public async Task<IEnumerable<Noticia>> ObterTodosAsync()
+        {
+            return await _contexto.Noticias
+                .Include(n => n.NoticiaTags)
+                .ThenInclude(nt => nt.Tag)
+                .AsNoTracking()
+                .OrderByDescending(n => n.DataPublicacao)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Noticia>> ObterPorTagAsync(int tagId)
+        {
+            return await _contexto.Noticias
+                .Include(n => n.NoticiaTags)
+                .ThenInclude(nt => nt.Tag)
+                .Where(n => n.NoticiaTags.Any(nt => nt.TagId == tagId))
+                .AsNoTracking()
+                .OrderByDescending(n => n.DataPublicacao)
+                .ToListAsync();
+        }
+
+        public async Task<Noticia> AdicionarAsync(Noticia noticia)
+        {
+            _contexto.Noticias.Add(noticia);
+            await _contexto.SaveChangesAsync();
+            return noticia;
+        }
+
+        public async Task AtualizarAsync(Noticia noticia)
+        {
+            _contexto.Entry(noticia).State = EntityState.Modified;
+            await _contexto.SaveChangesAsync();
+        }
+
+        public async Task RemoverAsync(int id)
+        {
+            var noticia = await _contexto.Noticias.FindAsync(id);
+            if (noticia != null)
+            {
+                _contexto.Noticias.Remove(noticia);
+                await _contexto.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> ExisteAsync(int id)
+        {
+            return await _contexto.Noticias.AnyAsync(n => n.Id == id);
+        }
+    }
+}
+
+</RepositorioNoticia.cs>
+<RepositorioTag.cs>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ICiProvaCandidato.Dominio.Entidades;
+using ICiProvaCandidato.Dominio.Repositorios;
+using Microsoft.EntityFrameworkCore;
+
+namespace ICiProvaCandidato.Infra.Dados.Repositorios
+{
+    public class RepositorioTag : IRepositorioTag
+    {
+        private readonly ContextoSistemaNoticiasDDD _contexto;
+
+        public RepositorioTag(ContextoSistemaNoticiasDDD contexto)
+        {
+            _contexto = contexto ?? throw new ArgumentNullException(nameof(contexto));
+        }
+
+        public async Task<Tag?> ObterPorIdAsync(int id)
+        {
+            return await _contexto.Tags
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<IEnumerable<Tag>> ObterTodosAsync()
+        {
+            return await _contexto.Tags
+                .AsNoTracking()
+                .Where(t => t.Ativa == true)
+                .OrderBy(t => t.Nome)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Tag>> ObterPorNomeAsync(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                return Enumerable.Empty<Tag>();
+
+            return await _contexto.Tags
+                .AsNoTracking()
+                .Where(t => t.Ativa == true && t.Nome.Contains(nome)) 
+                .OrderBy(t => t.Nome)
+                .ToListAsync();
+        }
+
+        public async Task<Tag> AdicionarAsync(Tag tag)
+        {
+            if (tag == null)
+                throw new ArgumentNullException(nameof(tag));
+
+            await _contexto.Tags.AddAsync(tag);
+            await _contexto.SaveChangesAsync();
+            return tag;
+        }
+
+        public async Task AtualizarAsync(Tag tag)
+        {
+            if (tag == null)
+                throw new ArgumentNullException(nameof(tag));
+
+            _contexto.Tags.Update(tag);
+            await _contexto.SaveChangesAsync();
+        }
+
+        public async Task RemoverAsync(int id)
+        {
+            var tag = await _contexto.Tags
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tag == null)
+                throw new InvalidOperationException($"Tag com ID {id} não encontrada.");
+
+            _contexto.Tags.Remove(tag);
+            await _contexto.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExisteAsync(int id)
+        {
+            return await _contexto.Tags
+                .AsNoTracking()
+                .AnyAsync(t => t.Id == id);
+        }
+
+        public async Task<bool> ExisteComNomeAsync(string nome, int? idExcluir = null)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                return false;
+
+            var query = _contexto.Tags
+                .AsNoTracking()
+                .Where(t => t.Nome == nome);
+
+            if (idExcluir.HasValue)
+                query = query.Where(t => t.Id != idExcluir.Value);
+
+            return await query.AnyAsync();
+        }
+    }
+}
+
+</RepositorioTag.cs>

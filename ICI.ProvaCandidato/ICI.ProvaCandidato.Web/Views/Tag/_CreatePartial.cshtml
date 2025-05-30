@@ -1,0 +1,24 @@
+﻿@model ICiProvaCandidato.Web.Models.TagViewModel
+
+<form id="formTag">
+    <input type="hidden" id="Id" name="Id" value="@Model.Id">
+
+    <div class="mb-3">
+        <label for="Nome" class="form-label">Nome</label>
+        <input type="text" class="form-control" id="Nome" name="Nome" value="@Model.Nome" required maxlength="50">
+    </div>
+
+    <div class="mb-3">
+        <label for="Descricao" class="form-label">Descrição</label>
+        <textarea class="form-control" id="Descricao" name="Descricao" rows="3" maxlength="200">@Model.Descricao</textarea>
+    </div>
+
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
+            Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+            Criar Tag
+        </button>
+    </div>
+</form>

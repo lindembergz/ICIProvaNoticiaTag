@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+  web:
+    image: ${DOCKER_REGISTRY-}iciprovacandidato-web
+    build:
+      context: .
+      dockerfile: ICI.ProvaCandidato.Web/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+    ports:
+      - "8080:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.example.app=iciprovacandidato"
+      - "com.example.environment=production"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} -Q 'SELECT 1'"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+    restart: unless-stopped
+    labels:
+      - "com.example.service=sqlserver"
+
+volumes:
+  sqlserver-data:
+    name: sqlserver-data
+  - /etc/localtime:/etc/localtime:ro
+  - /etc/timezone:/etc/timezone:ro
+
+networks:
+  app-network:
+    driver: bridge

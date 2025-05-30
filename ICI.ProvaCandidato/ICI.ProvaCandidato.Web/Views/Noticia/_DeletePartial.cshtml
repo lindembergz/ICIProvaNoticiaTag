@@ -1,0 +1,16 @@
+﻿@model ICiProvaCandidato.Web.Models.NoticiaViewModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <p>Você tem certeza que deseja excluir a notícia "<strong>@Model.Titulo</strong>"?</p>
+        <input type="hidden" id="Id" value="@Model.Id" />
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger btn-excluir-confirmar" data-id="@Model.Id">Excluir</button>
+    </div>
+</div>
