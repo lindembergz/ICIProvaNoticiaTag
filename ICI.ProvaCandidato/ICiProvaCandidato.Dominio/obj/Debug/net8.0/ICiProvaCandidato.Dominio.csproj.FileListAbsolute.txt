@@ -1,0 +1,12 @@
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/bin/Debug/net8.0/ICiProvaCandidato.Dominio.deps.json
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/bin/Debug/net8.0/ICiProvaCandidato.Dominio.dll
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/bin/Debug/net8.0/ICiProvaCandidato.Dominio.pdb
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.GeneratedMSBuildEditorConfig.editorconfig
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.AssemblyInfoInputs.cache
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.AssemblyInfo.cs
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.csproj.CoreCompileInputs.cache
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.sourcelink.json
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.dll
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/refint/ICiProvaCandidato.Dominio.dll
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ICiProvaCandidato.Dominio.pdb
+/app/ICI.ProvaCandidato/ICiProvaCandidato.Dominio/obj/Debug/net8.0/ref/ICiProvaCandidato.Dominio.dll
